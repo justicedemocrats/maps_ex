@@ -43,11 +43,12 @@ defmodule Maps do
       {40.758895, -73.985131}
   """
   def geocode(address) do
-    %{body: %{"results" => [%{"geometry" => ~m{location}} | _]}}
-      = Maps.get("geocode/json", [query: ~m{address}])
-
-    ~m{lat, lng} = location
-    {lat, lng}
+    case Maps.get("geocode/json", [query: ~m{address}]) do
+      %{body: %{"results" => [%{"geometry" => ~m{location}} | _]}} ->
+        ~m{lat, lng} = location
+        {lat, lng}
+      _other -> nil
+    end
   end
 
   @spec time_zone_of({float, float}) :: map
