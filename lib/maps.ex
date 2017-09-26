@@ -51,6 +51,33 @@ defmodule Maps do
     end
   end
 
+  @spec fill_address(binary) :: %{}
+  def fill_address(address) do
+    case Maps.get("geocode/json", [query: ~m{address}]) |> IO.inspect(pretty: true) do
+      %{body: %{"results" =>
+        [%{"address_components" => address_components,
+          "geometry" => %{"location" => %{"lat" => lat, "lng" => lng}}} | _]}} ->
+
+            [street_number, street, locality, region, country, postal_code]
+              = Enum.map(
+                ~w(street_number route locality administrative_area_level_1 country postal_code),
+                &(extract_component_with_type(address_components, &1)))
+
+            address_lines = [street_number <> " " <> street]
+            location = %{"latitude" => lat, "longitude" => lng}
+            ~m{address_lines, locality, region, country, postal_code, location}
+
+      _other -> nil
+    end
+  end
+
+  defp extract_component_with_type(address_components, type) do
+    address_components
+    |> Enum.filter(fn %{"types" => types} -> Enum.member?(types, type) end)
+    |> Enum.map(fn %{"long_name" => long_name} -> long_name end)
+    |> List.first()
+  end
+
   @spec time_zone_of({float, float}) :: map
   @doc ~S"""
   {latitude, longitude} -> ~M{utc_offset, time_zone_id, time_zone, zone_abbr}
