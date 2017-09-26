@@ -53,7 +53,7 @@ defmodule Maps do
 
   @spec fill_address(binary) :: %{}
   def fill_address(address) do
-    case Maps.get("geocode/json", [query: ~m{address}]) |> IO.inspect(pretty: true) do
+    case Maps.get("geocode/json", [query: ~m{address}]) do
       %{body: %{"results" =>
         [%{"address_components" => address_components,
           "geometry" => %{"location" => %{"lat" => lat, "lng" => lng}}} | _]}} ->
@@ -63,7 +63,7 @@ defmodule Maps do
                 ~w(street_number route locality administrative_area_level_1 country postal_code),
                 &(extract_component_with_type(address_components, &1)))
 
-            address_lines = [street_number <> " " <> street]
+            address_lines = ["#{street_number} #{street}"]
             location = %{"latitude" => lat, "longitude" => lng}
             ~m{address_lines, locality, region, country, postal_code, location}
 
@@ -72,10 +72,13 @@ defmodule Maps do
   end
 
   defp extract_component_with_type(address_components, type) do
-    address_components
-    |> Enum.filter(fn %{"types" => types} -> Enum.member?(types, type) end)
-    |> Enum.map(fn %{"long_name" => long_name} -> long_name end)
-    |> List.first()
+    result =
+      address_components
+      |> Enum.filter(fn %{"types" => types} -> Enum.member?(types, type) end)
+      |> Enum.map(fn %{"long_name" => long_name} -> long_name end)
+      |> List.first()
+
+    result || ""
   end
 
   @spec time_zone_of({float, float}) :: map
