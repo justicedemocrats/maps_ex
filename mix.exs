@@ -21,7 +21,7 @@ defmodule Maps.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:shorter_maps, "~> 2.0"},
+      {:short_maps, "~> 0.1.2"},
       {:httpotion, "~> 3.0.2"},
       {:poison, "~> 3.0"}
     ]

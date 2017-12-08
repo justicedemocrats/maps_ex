@@ -1,6 +1,6 @@
 defmodule Maps do
   use HTTPotion.Base
-  import ShorterMaps
+  import ShortMaps
 
   @key Application.get_env(:core, :goog_key)
   @default_params %{
@@ -33,7 +33,7 @@ defmodule Maps do
 
   @spec geocode(binary) :: {float, float}
   @doc ~S"""
-  {latitude, longitude} -> ~M{utc_offset, time_zone_id, time_zone, zone_abbr}
+  {latitude, longitude} -> ~m(utc_offset time_zone_id time_zone zone_abbr)a
   Uses googe – requires env var GOOG_KEY to be set, and to have proper permissions
     enabled in the Google developer console
 
@@ -43,9 +43,9 @@ defmodule Maps do
       {40.758895, -73.985131}
   """
   def geocode(address) do
-    case Maps.get("geocode/json", [query: ~m{address}]) do
-      %{body: %{"results" => [%{"geometry" => ~m{location}} | _]}} ->
-        ~m{lat, lng} = location
+    case Maps.get("geocode/json", [query: ~m(address)]) do
+      %{body: %{"results" => [%{"geometry" => ~m(location)} | _]}} ->
+        ~m(lat lng) = location
         {lat, lng}
       _other -> nil
     end
@@ -53,7 +53,7 @@ defmodule Maps do
 
   @spec fill_address(binary) :: %{}
   def fill_address(address) do
-    case Maps.get("geocode/json", [query: ~m{address}]) do
+    case Maps.get("geocode/json", [query: ~m(address)]) do
       %{body: %{"results" =>
         [%{"address_components" => address_components,
           "geometry" => %{"location" => %{"lat" => lat, "lng" => lng}}} | _]}} ->
@@ -65,7 +65,7 @@ defmodule Maps do
 
             address_lines = ["#{street_number} #{street}"]
             location = %{"latitude" => lat, "longitude" => lng}
-            ~m{address_lines, locality, region, country, postal_code, location}
+            ~m(address_lines locality region country postal_code location)
 
       _other -> nil
     end
@@ -83,7 +83,7 @@ defmodule Maps do
 
   @spec time_zone_of({float, float}) :: map
   @doc ~S"""
-  {latitude, longitude} -> ~M{utc_offset, time_zone_id, time_zone, zone_abbr}
+  {latitude, longitude} -> ~m(utc_offset time_zone_id time_zone zone_abbr)a
   Uses googe – requires env var GOOG_KEY to be set, and to have proper permissions
     enabled in the Google developer console
 
@@ -130,8 +130,9 @@ defmodule Maps do
           "timezone/json",
           [query: %{"location" => "#{x},#{y}", "timestamp" => DateTime.utc_now() |> DateTime.to_unix()}])
 
-    ~M{utc_offset: raw_offset + dst_offset, time_zone_id,
-       time_zone, zone_abbr: abbreviate_zone(time_zone)}
+    zone_abbr = abbreviate_zone(time_zone)
+    utc_offset = raw_offset + dst_offset
+    ~m(utc_offset time_zone_id time_zone zone_abbr)a
   end
 
   def time_zone_of(address_string) do
@@ -143,7 +144,7 @@ defmodule Maps do
 
   @spec abbreviate_zone(binary) :: binary
   @doc ~S"""
-  {latitude, longitude} -> ~M{utc_offset, time_zone_id, time_zone, zone_abbr}
+  {latitude, longitude} -> ~a{utc_offset, time_zone_id, time_zone, zone_abbr}
   Uses googe – requires env var GOOG_KEY to be set, and to have proper permissions
     enabled in the Google developer console
 
