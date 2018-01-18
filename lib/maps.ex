@@ -2,10 +2,7 @@ defmodule Maps do
   use HTTPotion.Base
   import ShortMaps
 
-  @key Application.get_env(:core, :goog_key)
-  @default_params %{
-    key: @key
-  }
+  def default_params, do: %{key: Application.get_env(:maps, :key)}
 
   defp process_url(url) do
     "https://maps.googleapis.com/maps/api/" <> url
@@ -17,7 +14,7 @@ defmodule Maps do
 
   defp process_options(opts) do
     opts
-    |> Keyword.update(:query, @default_params, &(Map.merge(@default_params, &1)))
+    |> Keyword.update(:query, default_params(), &(Map.merge(default_params(), &1)))
   end
 
   defp process_response_body(raw) do
