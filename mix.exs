@@ -6,7 +6,7 @@ defmodule Maps.Mixfile do
       app: :maps,
       version: "0.1.0",
       elixir: "~> 1.5",
-      start_permanent: Mix.env == :prod,
+      start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
   end
@@ -22,7 +22,7 @@ defmodule Maps.Mixfile do
   defp deps do
     [
       {:short_maps, "~> 0.1.2"},
-      {:httpotion, "~> 3.0.2"},
+      {:httpotion, "~> 3.1.0"},
       {:poison, "~> 3.0"}
     ]
   end
